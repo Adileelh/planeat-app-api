@@ -57,8 +57,10 @@ class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database"""
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
-    # authentication_classes = (TokenAuthentication,) refactored to BaseRecipeAttrViewSet
-    # permission_classes = (IsAuthenticated,) refactored to BaseRecipeAttrViewSet
+    # authentication_classes = (TokenAuthentication,)
+    # refactored to BaseRecipeAttrViewSet
+    # permission_classes = (IsAuthenticated,)
+    # refactored to BaseRecipeAttrViewSet
 
     # def get_queryset(self):
     #     """Return objects for the current authenticated user only"""
@@ -69,8 +71,10 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage ingredients in the database"""
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
-    # authentication_classes = (TokenAuthentication,) refactored to BaseRecipeAttrViewSet
-    # permission_classes = (IsAuthenticated,) refactored to BaseRecipeAttrViewSet
+    # authentication_classes = (TokenAuthentication,)
+    # refactored to BaseRecipeAttrViewSet
+    # permission_classes = (IsAuthenticated,)
+    # refactored to BaseRecipeAttrViewSet
 
     # def get_queryset(self):
     #     """Return objects for the current authenticated user only"""
