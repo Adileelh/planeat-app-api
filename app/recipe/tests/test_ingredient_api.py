@@ -1,5 +1,7 @@
 """ test for the ingredient API"""
 
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
@@ -7,7 +9,10 @@ from django.test import TestCase
 from rest_framework import status  # HTTP status codes
 from rest_framework.test import APIClient
 
-from core.models import Ingredient
+from core.models import (
+    Ingredient,
+    Recipe,
+)
 
 from recipe.serializers import IngredientSerializer
 
@@ -94,3 +99,48 @@ class PrivateIngredientsApiTests(TestCase):
         ingredients = Ingredient.objects.filter(user=self.user)
         self.assertEqual(ingredients.exists(), False)
         # self.assertFalse(ingredients.exists())
+
+    def test_filter_ingredients_assigned_to_recipes(self):
+        """ Test filtering ingredients by those assigned to recipes """
+        ingredient1 = Ingredient.objects.create(user=self.user, name="Apples")
+        ingredient2 = Ingredient.objects.create(user=self.user, name="Turkey")
+        recipe = Recipe.objects.create(
+            user=self.user,
+            title="Apple crumble",
+            time_minutes=5,
+            price=Decimal("10.00"),
+        )
+
+        recipe.ingredients.add(ingredient1)
+
+        res = self.client.get(INGREDIENTS_URL, {"assigned_only": 1})
+
+        s1 = IngredientSerializer(ingredient1)
+        s2 = IngredientSerializer(ingredient2)
+        self.assertIn(s1.data, res.data)
+        self.assertNotIn(s2.data, res.data)
+
+    def test_filtered_ingredients_assigned_unique(self):
+        """ test filtered ingredients returns a unique list."""
+
+        ingredient = Ingredient.objects.create(user=self.user, name="Eggs")
+        Ingredient.objects.create(user=self.user, name="lentils")
+        recipe1 = Recipe.objects.create(
+            user=self.user,
+            title="Eggs benedict",
+            time_minutes=5,
+            price=Decimal("10.00"),
+        )
+
+        recipe2 = Recipe.objects.create(
+            user=self.user,
+            title="Coriander Eggs on toast",
+            time_minutes=5,
+            price=Decimal("10.00"),
+        )
+
+        recipe1.ingredients.add(ingredient)
+        recipe2 = recipe2.ingredients.add(ingredient)
+
+        res = self.client.get(INGREDIENTS_URL, {"assigned_only": 1})
+        self.assertEqual(len(res.data), 1)
