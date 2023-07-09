@@ -4,6 +4,7 @@ import os
 import uuid
 
 from django.conf import settings
+
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -115,3 +116,8 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = self.recipe.title
+        super().save(*args, **kwargs)

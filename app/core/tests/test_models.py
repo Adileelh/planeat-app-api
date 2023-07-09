@@ -125,7 +125,6 @@ class ModelTests(TestCase):
         event = models.Event.objects.create(
             user=user,
             recipe=recipe,
-            title='Sunday lunch',
             description='Sunday lunch with family',
             start_time=start_time,
             end_time=end_time
