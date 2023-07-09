@@ -63,4 +63,4 @@ class Command(BaseCommand):
                 recipe.ingredients.add(ingredient)
 
             self.stdout.write(self.style.SUCCESS(
-                f"Tags and ingredients added to the recipe"))
+                f"Tags and ingredients added to the recipe {recipe.title}"))
