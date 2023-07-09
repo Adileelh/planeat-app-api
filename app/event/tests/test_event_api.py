@@ -1,5 +1,5 @@
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 
 from django.contrib.auth import get_user_model
@@ -88,10 +88,17 @@ class PrivateEventApiTests(TestCase):
         start_time = timezone.now()
         end_time = start_time + timedelta(hours=1)
 
-        event1 = Event.objects.create(
-            user=self.user, start_time=start_time, end_time=end_time, recipe=recipe1)
-        event2 = Event.objects.create(
-            user=self.user, start_time=start_time, end_time=end_time, recipe=recipe2)
+        Event.objects.create(
+            user=self.user,
+            start_time=start_time,
+            end_time=end_time,
+            recipe=recipe1
+        )
+        Event.objects.create(
+            user=self.user,
+            start_time=start_time,
+            end_time=end_time,
+            recipe=recipe2)
 
         res = self.client.get(EVENTS_URL)
 

@@ -133,7 +133,7 @@ class ModelTests(TestCase):
         self.assertEqual(str(event), event.title)
 
     def test_create_event_without_required_fields(self):
-        """Test that creating an event without required fields raises an error"""
+        """Test that creating an event without required fields raises error"""
         user = create_user()
         recipe = models.Recipe.objects.create(
             user=user,

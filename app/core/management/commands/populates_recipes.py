@@ -10,11 +10,6 @@ User = get_user_model()
 class Command(BaseCommand):
     help = 'Populate the database with random recipes'
 
-    def handle(self, *args, **options):
-        if Recipe.objects.count() >= 100:
-            self.stdout.write(self.style.WARNING(
-                'There are already 100 or more recipes in the database. Skipping population.'))
-            return
     TAGS = ['Breakfast', 'Lunch', 'Dinner', 'Dessert',
             'Vegetarian', 'Vegan', 'Gluten-Free']
     INGREDIENTS = ['Salt', 'Pepper', 'Sugar', 'Flour',
@@ -25,11 +20,16 @@ class Command(BaseCommand):
                             help='Number of recipes to create')
 
     def handle(self, *args, **options):
+        if Recipe.objects.count() >= 100:
+            self.stdout.write(self.style.WARNING(
+                'already 100 or more items in db. Skipping population.'))
+            return
+
         num_recipes = options['num_recipes']
 
-        for _ in range(num_recipes):
+        for i in range(num_recipes):
             user = random.choice(User.objects.all())
-            title = f"Recipe {_}"
+            title = f"Recipe {i + 1}"
             time_minutes = random.randint(10, 60)
             price = Decimal(random.uniform(5, 20))
             description = "Sample description"
