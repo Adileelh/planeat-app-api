@@ -1,7 +1,7 @@
 """ manage events in the database"""
 
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from core.models import Event
@@ -10,10 +10,10 @@ from event import serializers
 
 class EventViewSet(viewsets.ModelViewSet):
     """Manage events in the database"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
