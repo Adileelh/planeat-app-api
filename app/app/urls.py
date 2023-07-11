@@ -19,6 +19,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView
 )
 
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import static
@@ -38,7 +39,9 @@ urlpatterns = [
          name='api-redoc'),
     path('api/user/', include('user.urls')),
     path('api/recipe/', include('recipe.urls')),
-    path('api/event/', include('event.urls')),  # ajoutez cette ligne
+    path('api/event/', include('event.urls')),
+
+    # ajoutez cette ligne
 ]
 
 if settings.DEBUG:

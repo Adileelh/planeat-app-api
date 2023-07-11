@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 CREATE_USER_URL = reverse('user:create')
-TOKEN_URL = reverse('user:token')
+TOKEN_URL = reverse('user:token_obtain_pair')
 ME_URL = reverse('user:me')
 
 
@@ -76,17 +76,16 @@ class PublicUserApiTests(TestCase):
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertIn('token', res.data)
+        self.assertIn('access', res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_create_token_bad_credentials(self):
-        """ Test that token is not created if invalid credentials are given """
-        create_user(email='test@example.com', password='goodpassword')
+    def test_create_token_blank_password(self):
+        """ Test that token is not created if user doesn't exist """
+        payload = {'email': 'test@example.com', 'password': ''}
 
-        payload = {'email': 'test@example.com', 'password': 'badpassword'}
-        res = self.client.post(CREATE_USER_URL, payload)
+        res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('token', res.data)
+        self.assertNotIn('access', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_token_blank_password(self):
@@ -113,9 +112,12 @@ class PrivateUserApiTests(TestCase):
             password='testpass123',
             name='Test Name'
         )
-
         self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+
+        res = self.client.post(
+            TOKEN_URL, {'email': 'test@example.com', 'password': 'testpass123'})
+        token = res.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
     def test_retrieve_profile_success(self):
         """ test retrieving profile for logged in user """
