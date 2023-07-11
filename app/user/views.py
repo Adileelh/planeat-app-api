@@ -2,7 +2,6 @@ from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from rest_framework.settings import api_settings
 
 from user.serializers import (
     UserSerializer,
