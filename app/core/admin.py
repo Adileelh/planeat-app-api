@@ -7,45 +7,31 @@ from django.utils.translation import gettext_lazy as _
 from core import models
 
 
-class UserAdmin(BaseUserAdmin):
-    """ Define the admin model for user """
-    ordering = ['id']
-    list_display = ['email', 'name']
+class UserModelAdmin(BaseUserAdmin):
+    # The fields to be used in displaying the User model.
+    # These override the definitions on the base UserModelAdmin
+    # that reference specific fields on auth.User.
+    list_display = ('id', 'email', 'name', 'is_active', 'is_staff')
+    list_filter = ('is_staff',)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        (
-            _('Permissions'),
-            {
-                'fields': (
-                    'is_active',
-                    'is_staff',
-                    'is_superuser',
-                )
-            }
-
-        ),
-        (
-            _('Important dates'), {'fields': ('last_login',)}),
-
+        ('User Credentials', {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('name',)}),
+        ('Permissions', {'fields': ('is_staff', 'is_active')}),
     )
-    readonly_fields = ('last_login',)
+    # add_fieldsets is not a standard ModelAdmin attribute. UserModelAdmin
+    # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': (
-                'email',
-                'password1',
-                'password2',
-                'name',
-                'is_staff',
-                'is_superuser',
-                'is_active',
-            ),
+            'fields': ('email', 'name', 'password1', 'password2'),
         }),
     )
+    search_fields = ('email',)
+    ordering = ('email', 'id')
+    filter_horizontal = ()
 
 
-admin.site.register(models.User, UserAdmin)
+admin.site.register(models.User, UserModelAdmin)
 admin.site.register(models.Recipe)
 admin.site.register(models.Tag)
 admin.site.register(models.Ingredient)

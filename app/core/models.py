@@ -2,6 +2,7 @@
 
 import os
 import uuid
+from django.utils import timezone
 
 from django.conf import settings
 
@@ -9,7 +10,7 @@ from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
-    PermissionsMixin,
+
 )
 
 
@@ -22,38 +23,76 @@ def recipe_image_file_path(instance, filename):
 
 
 class UserManager(BaseUserManager):
-    """Manager for user profiles"""
-
-    def create_user(self, email, password=None, **extra_fields):
-        """Create , save a new user profile"""
+    def create_user(self, email, name, password=None, is_staff=False):
+        """
+        Creates and saves a User with the given email, name and password.
+        """
         if not email:
             raise ValueError('User must have an email address')
-        user = self.model(email=self.normalize_email(email), **extra_fields)
+        user = self.model(
+            email=self.normalize_email(email),
+            name=name,
+            is_staff=is_staff
+        )
         user.set_password(password)
         user.save(using=self._db)
-
         return user
 
-    def create_superuser(self, email, password):
-        """Create and save a new superuser with given details"""
-        user = self.create_user(email, password)
-        user.is_superuser = True
-        user.is_staff = True
+    def create_superuser(self, email, name, password=None):
+        """
+        Creates and saves a Superuser with the given email, name and password.
+        """
+        user = self.create_user(
+            email=email,
+            password=password,
+            name=name,
+            is_staff=True
+        )
         user.save(using=self._db)
 
         return user
 
+# Custom User Model.
 
-class User(AbstractBaseUser, PermissionsMixin):
-    """User in the systeme"""
-    email = models.EmailField(max_length=255, unique=True)
+
+class User(AbstractBaseUser):
+    email = models.EmailField(
+        verbose_name='Email',
+        max_length=255,
+        unique=True,
+    )
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)  # can login
-    is_staff = models.BooleanField(default=False)  # staff user
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def __str__(self):
+        return self.email
+
+    def get_full_name(self):
+        return self.name
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return self.is_staff
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    # @property
+    # def is_staff(self):
+    #     "Is the user a member of staff?"
+    #     # Simplest possible answer: All admins are staff
+    #     return self.is_staff
 
 
 class Recipe(models.Model):
