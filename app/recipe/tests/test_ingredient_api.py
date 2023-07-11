@@ -25,9 +25,16 @@ def detail_url(ingredient_id):
     return reverse('recipe:ingredient-detail', args=[ingredient_id])
 
 
-def create_user(email="user@example.com", password="testpass123"):
+def create_user(
+        email="user@example.com",
+        password="testpass123",
+        name="Test User"):
     """ Helper function to create and return a user """
-    return get_user_model().objects.create_user(email=email, password=password)
+    return get_user_model().objects.create_user(
+        email=email,
+        password=password,
+        name=name
+    )
 
 
 class PublicIngredientsApiTests(TestCase):
