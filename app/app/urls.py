@@ -41,6 +41,8 @@ urlpatterns = [
     path('api/recipe/', include('recipe.urls')),
     path('api/event/', include('event.urls')),
 
+
+
     # ajoutez cette ligne
 ]
 

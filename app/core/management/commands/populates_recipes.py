@@ -27,6 +27,12 @@ class Command(BaseCommand):
 
         num_recipes = options['num_recipes']
 
+        if not User.objects.exists():
+            User.objects.create_superuser(
+                'admin@example.com', 'admin', 'AdminPassword123')
+            self.stdout.write(self.style.SUCCESS(
+                'Superuser created: admin'))
+
         for i in range(num_recipes):
             user = random.choice(User.objects.all())
             title = f"Recipe {i + 1}"
