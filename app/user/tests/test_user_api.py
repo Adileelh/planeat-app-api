@@ -115,7 +115,8 @@ class PrivateUserApiTests(TestCase):
         self.client = APIClient()
 
         res = self.client.post(
-            TOKEN_URL, {'email': 'test@example.com', 'password': 'testpass123'})
+            TOKEN_URL,
+            {'email': 'test@example.com', 'password': 'testpass123'})
         token = res.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
