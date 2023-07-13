@@ -47,7 +47,8 @@ class Command(BaseCommand):
                 time_minutes=time_minutes,
                 price=price,
                 description=description,
-                link=link
+                link=link,
+                public=True
             )
 
             self.stdout.write(self.style.SUCCESS(

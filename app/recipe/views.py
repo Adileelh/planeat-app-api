@@ -15,6 +15,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import BasePermission
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+
+from django.db.models import Q
+
 
 from core.models import (
     Recipe,
@@ -23,6 +28,13 @@ from core.models import (
 )
 
 from recipe import serializers
+
+
+class IsRecipePublicOrAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_staff:
+            return True
+        return not request.user.is_authenticated
 
 
 @extend_schema_view(
@@ -46,17 +58,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipeDetailSerializer
     queryset = Recipe.objects.all()
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly | AllowAny,)
 
     def _params_to_ints(self, qs):
         """Convert a list of string IDs to a list of integers"""
-        return [int(str_id) for str_id in qs.split(',')]
+        if qs is not None:
+            return [int(str_id) for str_id in qs.split(',')]
+        return []
 
     def get_queryset(self):
-        """Return objects for the current authenticated user only"""
+        """Return public recipes and recipes owned by staff members"""
         tags = self.request.query_params.get('tags')
         ingredients = self.request.query_params.get('ingredients')
         queryset = self.queryset
+
         if tags:
             tag_ids = self._params_to_ints(tags)
             queryset = queryset.filter(tags__id__in=tag_ids)
@@ -64,9 +79,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient_ids = self._params_to_ints(ingredients)
             queryset = queryset.filter(ingredients__id__in=ingredient_ids)
 
-        return queryset.filter(
-            user=self.request.user
+        # Filtrer les recettes publiques et les recettes appartenant à des membres du personnel
+        queryset = queryset.filter(
+            Q(user__is_staff=True) | Q(public=True)
         ).order_by('-id').distinct()
+
+        return queryset
 
     def get_serializer_class(self):
         """Return appropriate serializer class"""
